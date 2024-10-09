@@ -4,7 +4,6 @@
 * JDK 17
 * Docker
 * Gradle
-* MySQL server (e.g: xampp)
 
 ### Before anything build & publish common library to Local .m2
 ```
