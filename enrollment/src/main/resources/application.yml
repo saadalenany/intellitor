@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: enrollment-service
+    name: enrollment
 
 eureka:
   client:

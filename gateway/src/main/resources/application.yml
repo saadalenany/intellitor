@@ -9,21 +9,22 @@ spring:
       discovery:
         locator:
           enabled: true
+          lower-case-service-id: true
       routes:
-        - id: dao-service
-          uri: lb://DAO-SERVICE
+        - id: dao
+          uri: lb://DAO
           predicates:
             - Path=/dao/**
-        - id: user-service
-          uri: lb://USER-SERVICE
+        - id: user
+          uri: lb://USER
           predicates:
             - Path=/user/**
-        - id: course-service
-          uri: lb://COURSE-SERVICE
+        - id: course
+          uri: lb://COURSE
           predicates:
             - Path=/course/**
-        - id: enrollment-service
-          uri: lb://ENROLLMENT-SERVICE
+        - id: enrollment
+          uri: lb://ENROLLMENT
           predicates:
             - Path=/enrollment/**
 

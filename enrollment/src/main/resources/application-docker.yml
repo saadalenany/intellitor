@@ -9,3 +9,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://intellitor:8761/eureka
+  instance:
+    preferIpAddress: true

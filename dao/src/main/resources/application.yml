@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: dao-service
+    name: dao
   datasource:
     url: jdbc:mysql://localhost:3306/intellitordb?createDatabaseIfNotExist=true&autoReconnect=true&useSSL=false&serverTimezone=UTC
     username: root

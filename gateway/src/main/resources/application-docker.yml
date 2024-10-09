@@ -5,40 +5,34 @@ spring:
   application:
     name: gateway
   cloud:
-    loadbalancer:
-      configurations: health-check
     gateway:
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
-      httpclient:
-        connect-timeout: 60000
-        response-timeout: 60s
       routes:
         - id: dao
-          uri: lb://dao
-          port: 8081
+          uri: lb://DAO
           predicates:
-            - Path=/**
+            - Path=/dao/**
         - id: user
-          uri: lb://user
-          port: 8082
+          uri: lb://USER
           predicates:
-            - Path=/**
+            - Path=/user/**
         - id: course
-          uri: lb://course
-          port: 8083
+          uri: lb://COURSE
           predicates:
-            - Path=/**
+            - Path=/course/**
         - id: enrollment
-          uri: lb://enrollment
-          port: 8084
+          uri: lb://ENROLLMENT
           predicates:
-            - Path=/**
+            - Path=/enrollment/**
+
 eureka:
   client:
     service-url:
       defaultZone: http://intellitor:8761/eureka
     register-with-eureka: true
     fetch-registry: true
+  instance:
+    preferIpAddress: true
