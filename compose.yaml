@@ -1,0 +1,126 @@
+version: "3.7"
+services:
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    volumes:
+      - db-volume:/var/lib/mysql
+    networks:
+      - mysql-network
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=1
+      - MYSQL_DATABASE=intellitordb
+
+  intellitor:
+    #    image: registry server
+    image: intellitor:latest
+    build:
+      context: server
+      dockerfile: Dockerfile
+    container_name: intellitor
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+    depends_on:
+      - mysql
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
+
+  dao:
+    #    image: dao service
+    image: dao:latest
+    build:
+      context: dao
+      dockerfile: Dockerfile
+    container_name: dao
+    ports:
+      - "8081:8081"
+    networks:
+      - mysql-network
+      - microservice-network
+    depends_on:
+      - mysql
+      - intellitor
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
+
+  user:
+    #    image: user service
+    image: user:latest
+    build:
+      context: user
+      dockerfile: Dockerfile
+    container_name: user
+    ports:
+      - "8082:8082"
+    networks:
+      - microservice-network
+    depends_on:
+      - intellitor
+      - dao
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
+
+  course:
+    #    image: course service
+    image: course:latest
+    build:
+      context: course
+      dockerfile: Dockerfile
+    container_name: course
+    ports:
+      - "8083:8083"
+    networks:
+      - microservice-network
+    depends_on:
+      - intellitor
+      - dao
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
+
+  enrollment:
+    #    image: enrollment service
+    image: enrollment:latest
+    build:
+      context: enrollment
+      dockerfile: Dockerfile
+    container_name: enrollment
+    ports:
+      - "8084:8084"
+    networks:
+      - microservice-network
+    depends_on:
+      - intellitor
+      - dao
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
+
+  gateway:
+    #    image: gateway service
+    image: gateway:latest
+    build:
+      context: gateway
+      dockerfile: Dockerfile
+    container_name: gateway
+    ports:
+      - "8085:8085"
+    networks:
+      - microservice-network
+    depends_on:
+      - intellitor
+      - dao
+      - user
+      - course
+      - enrollment
+    environment:
+      - SPRING_PROFILE_ACTIVE=docker
+
+networks:
+  mysql-network:
+  microservice-network:
+
+volumes:
+  db-volume:

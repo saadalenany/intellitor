@@ -1,0 +1,11 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: enrollment
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://intellitor:8761/eureka
