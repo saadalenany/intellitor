@@ -3,7 +3,6 @@ package com.intellitor.dao.entities;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@ToString
 public class Course extends BaseEntity{
 
     @Column(unique = true)
@@ -26,4 +24,11 @@ public class Course extends BaseEntity{
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Enrollment> enrollments = new ArrayList<>();
 
+    public void setEnrollments(List<Enrollment> newEnrollments) {
+        this.enrollments.clear();
+        if (newEnrollments != null) {
+            newEnrollments.forEach(enrollment -> enrollment.setCourse(this));
+            this.enrollments.addAll(newEnrollments);
+        }
+    }
 }

@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +12,16 @@ import java.util.List;
 @Entity
 @Setter
 @Getter
-@ToString
 public class Teacher extends User {
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses = new ArrayList<>();
 
+    public void setCourses(List<Course> newCourses) {
+        this.courses.clear();
+        if (newCourses != null) {
+            newCourses.forEach(course -> course.setTeacher(this));
+            this.courses.addAll(newCourses);
+        }
+    }
 }

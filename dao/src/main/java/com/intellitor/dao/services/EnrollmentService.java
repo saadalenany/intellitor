@@ -40,19 +40,7 @@ public class EnrollmentService {
 
     public Response createEnrollment(EnrollmentDTO enrollmentDTO) {
         Enrollment entity = enrollmentMapper.toEntity(enrollmentDTO);
-        Student student = studentRepository.findById(enrollmentDTO.getStudentId()).orElse(null);
-        if (student == null) {
-            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.STUDENT, enrollmentDTO.getStudentId()));
-        }
-        Course course = courseRepository.findById(enrollmentDTO.getCourseId()).orElse(null);
-        if (course == null) {
-            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.COURSE, enrollmentDTO.getCourseId()));
-        }
-        if (enrollmentRepository.findByStudentAndCourse(student, course).isPresent()) {
-            return new Response(400, String.format(ErrorMessages.OBJECT_FIELD_ALREADY_EXISTS, ObjectNames.ENROLLMENT, "{student, course}", student.toString()+" , "+course.toString()));
-        }
-        Enrollment saved = enrollmentRepository.save(entity);
-        return new Response(200, enrollmentMapper.toModel(saved));
+        return saveEntity(enrollmentDTO, entity);
     }
 
     public Response updateEnrollment(EnrollmentDTO enrollmentDTO) {
@@ -60,8 +48,7 @@ public class EnrollmentService {
         if (enrollmentRepository.findById(enrollmentDTO.getId()).isEmpty()) {
             return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.ENROLLMENT, enrollmentDTO.getId()));
         }
-        Enrollment saved = enrollmentRepository.save(entity);
-        return new Response(200, enrollmentMapper.toModel(saved));
+        return saveEntity(enrollmentDTO, entity);
     }
 
     public Response deleteEnrollment(Long id) {
@@ -71,5 +58,23 @@ public class EnrollmentService {
         }
         enrollmentRepository.deleteById(id);
         return new Response(200, enrollmentMapper.toModel(found.get()));
+    }
+
+    private Response saveEntity(EnrollmentDTO enrollmentDTO, Enrollment entity) {
+        Student student = studentRepository.findById(enrollmentDTO.getStudentId()).orElse(null);
+        if (student == null) {
+            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.STUDENT, enrollmentDTO.getStudentId()));
+        }
+        Course course = courseRepository.findById(enrollmentDTO.getCourseId()).orElse(null);
+        if (course == null) {
+            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.COURSE, enrollmentDTO.getCourseId()));
+        }
+        if (enrollmentRepository.findByStudentAndCourse(student, course).isPresent()) {
+            return new Response(400, String.format(ErrorMessages.OBJECT_FIELD_ALREADY_EXISTS, ObjectNames.ENROLLMENT, "{student, course}", student.getEmail() + " , " + course.getTitle()));
+        }
+        entity.setStudent(student);
+        entity.setCourse(course);
+        Enrollment saved = enrollmentRepository.save(entity);
+        return new Response(200, enrollmentMapper.toModel(saved));
     }
 }

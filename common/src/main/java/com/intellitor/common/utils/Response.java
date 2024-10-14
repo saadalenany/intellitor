@@ -9,8 +9,8 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Response {
+public class Response<T> {
     private int status;
-    private Object content;
+    private T content;
     private final Instant timestamp = Instant.now();
 }

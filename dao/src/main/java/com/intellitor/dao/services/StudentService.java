@@ -33,7 +33,7 @@ public class StudentService {
     public Response findByEmailAndPassword(String email, String password) {
         Student student = studentRepository.findByEmailAndPassword(email, password).orElse(null);
         if (student == null) {
-            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_EMAIL_PASSWORD, ObjectNames.TEACHER, email, password));
+            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_EMAIL_PASSWORD, ObjectNames.STUDENT, email, password));
         }
         return new Response(200, studentMapper.toModel(student));
     }

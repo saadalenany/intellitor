@@ -35,5 +35,4 @@ public class CourseController {
     public ResponseEntity<Response> deleteCourse(@PathVariable Long id) {
         return ResponseEntity.ok(courseService.deleteCourse(id));
     }
-
 }
