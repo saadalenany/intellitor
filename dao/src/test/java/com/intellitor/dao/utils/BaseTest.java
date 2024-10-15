@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.intellitor.common.utils.Response;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionCallback;
@@ -96,6 +96,18 @@ public class BaseTest {
         return objectMapper.readValue(content, javaType);
     }
 
+    protected  <R, T> R deleteForObject(String path, String id, Class<R> resCls, Class<T> cls) throws Exception {
+        String content = this.mockMvc.perform(delete(path + "/" + id).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(resCls, cls);
+        return objectMapper.readValue(content, javaType);
+    }
+
+
     /**
      * execute get call and expect success and List as a result
      *
@@ -156,65 +168,45 @@ public class BaseTest {
         return objectMapper.readValue(content, objectMapper.getTypeFactory().constructCollectionType(Set.class, javaType));
     }
 
-    /**
-     * execute post call and expect an error response
-     *
-     * @param url            url to be called
-     * @param data           payload object
-     * @param expectedStatus status to be expected. e.g. MockMvcResultMatchers.status().isBadRequest()
-     * @return ErrorModel
-     */
-    protected ErrorModel postForError(String url, Object data, ResultMatcher expectedStatus) throws Exception {
+    protected Response<String> postForError(String url, Object data) throws Exception {
         String content = this.mockMvc.perform(
                         post(url).content(objectMapper.writeValueAsBytes(data)).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(expectedStatus)
+                .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        return objectMapper.readValue(content, ErrorModel.class);
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(Response.class, String.class);
+        return objectMapper.readValue(content, javaType);
     }
 
-    /**
-     * execute put call and expect an error response
-     *
-     * @param url            url to be called
-     * @param data           payload object
-     * @param expectedStatus status to be expected. e.g. MockMvcResultMatchers.status().isBadRequest()
-     * @return ErrorModel
-     */
-    protected ErrorModel putForError(String url, Object data, ResultMatcher expectedStatus) throws Exception {
+    protected Response<String> putForError(String url, Object data) throws Exception {
         String content = this.mockMvc.perform(
                         put(url).content(objectMapper.writeValueAsBytes(data)).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(expectedStatus)
+                .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        return objectMapper.readValue(content, ErrorModel.class);
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(Response.class, String.class);
+        return objectMapper.readValue(content, javaType);
     }
 
-    /**
-     * execute get call and expect an error response
-     *
-     * @param url            url to be called
-     * @param expectedStatus status to be expected. e.g. MockMvcResultMatchers.status().isNotFound()
-     * @return ErrorModel
-     */
-    protected ErrorModel getForError(String url, ResultMatcher expectedStatus) throws Exception {
-        String content = this.mockMvc.perform(get(url)).andExpect(expectedStatus).andReturn().getResponse().getContentAsString();
+    protected Response<String> getForError(String url) throws Exception {
+        String content = this.mockMvc.perform(get(url)).andExpect(MockMvcResultMatchers.status().isOk()).andReturn().getResponse().getContentAsString();
 
-        return objectMapper.readValue(content, ErrorModel.class);
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(Response.class, String.class);
+        return objectMapper.readValue(content, javaType);
     }
 
-    protected  <R, T> R deleteForObject(String path, String id, Class<R> resCls, Class<T> cls) throws Exception {
+    protected  Response<String> deleteForError(String path, String id) throws Exception {
         String content = this.mockMvc.perform(delete(path + "/" + id).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
 
-        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(resCls, cls);
+        JavaType javaType = objectMapper.getTypeFactory().constructParametricType(Response.class, String.class);
         return objectMapper.readValue(content, javaType);
     }
 
