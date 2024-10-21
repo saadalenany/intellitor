@@ -1,9 +1,28 @@
 server:
   port: 8082
 
+keycloak:
+  url: http://localhost:8080
+  realm: external
+  valid-redirect-uri: http://localhost:8082
+
 spring:
   application:
     name: user
+  security:
+    oauth2:
+      client:
+        provider:
+          external:
+            issuer-uri: http://localhost:8080/realms/external
+        registration:
+          external:
+            authorization-grant-type: authorization_code
+            client-id: external-client
+            client-name: External Client
+            client-secret: P5yDD89oxprTqjFV57yvW12XEvkS8nzO
+            provider: external
+            scope: openid,offline_access,profile
 
 eureka:
   client:

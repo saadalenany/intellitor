@@ -5,7 +5,7 @@
 * Docker
 * Gradle
 
-### Before anything build & publish common library to Local .m2
+### Before anything build & publish `common` library to Local .m2
 ```
 gradle clean build; ./gradlew publishToMavenLocal
 ```
@@ -15,14 +15,14 @@ gradle clean build; ./gradlew publishToMavenLocal
 ./gradlew clean build --include-build ..\common --console plain
 ```
 
-## Run Docker compose.yaml file
+## Run Docker `compose.yaml` file
 ```
 docker compose up -d
 ```
 
 ## Obsolete method of running each service independently
 
-### Run a MySQL Docker image with empty Password for DAO microservice
+### Run a MySQL Docker image with empty Password for `dao` microservice
 ```
 docker run --name mysql -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -d mysql:latest
 ```
