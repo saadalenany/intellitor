@@ -11,10 +11,6 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: dao
-          uri: lb://DAO
-          predicates:
-            - Path=/dao/**
         - id: user
           uri: lb://USER
           predicates:

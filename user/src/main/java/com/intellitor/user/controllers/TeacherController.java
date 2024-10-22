@@ -2,7 +2,7 @@ package com.intellitor.user.controllers;
 
 import com.intellitor.common.dtos.TeacherDTO;
 import com.intellitor.common.utils.Response;
-import com.intellitor.user.feign.DaoFeignClient;
+import com.intellitor.user.services.TeacherService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,35 +10,35 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/teacher")
 public class TeacherController {
 
-    private final DaoFeignClient daoFeignClient;
+    private final TeacherService teacherService;
 
-    public TeacherController(DaoFeignClient daoFeignClient) {
-        this.daoFeignClient = daoFeignClient;
+    public TeacherController(TeacherService teacherService) {
+        this.teacherService = teacherService;
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Response> getTeacher(@PathVariable Long id) {
-        return daoFeignClient.getTeacherById(id);
+        return ResponseEntity.ok(teacherService.findById(id));
     }
 
-    @GetMapping("/validate")
-    public ResponseEntity<Response> validateTeacherByEmailAndPassword(@RequestParam String email, @RequestParam String password) {
-        return daoFeignClient.getTeacherByEmailAndPassword(email, password);
+    @GetMapping
+    public ResponseEntity<Response> getTeacherByEmailAndPassword(@RequestParam String email, @RequestParam String password) {
+        return ResponseEntity.ok(teacherService.findByEmailAndPassword(email, password));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<Response> registerTeacher(@RequestBody TeacherDTO teacher) {
-        return daoFeignClient.createTeacher(teacher);
+    @PostMapping
+    public ResponseEntity<Response> createTeacher(@RequestBody TeacherDTO teacher) {
+        return ResponseEntity.ok(teacherService.createTeacher(teacher));
     }
 
-    @PutMapping("/update")
+    @PutMapping
     public ResponseEntity<Response> updateTeacher(@RequestBody TeacherDTO teacher) {
-        return daoFeignClient.updateTeacher(teacher);
+        return ResponseEntity.ok(teacherService.updateTeacher(teacher));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Response> deleteTeacher(@PathVariable Long id) {
-        return daoFeignClient.deleteTeacherById(id);
+        return ResponseEntity.ok(teacherService.deleteTeacher(id));
     }
 
 }

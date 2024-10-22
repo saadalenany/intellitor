@@ -14,4 +14,6 @@ public class EnrollmentDTO extends BaseDTO{
     private Long studentId;
 
     private Long courseId;
+
+    private Long quizId;
 }

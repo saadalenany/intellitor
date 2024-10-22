@@ -1,79 +1,130 @@
 package com.intellitor.user.controllers;
 
 import com.intellitor.common.dtos.StudentDTO;
+import com.intellitor.common.utils.ErrorMessages;
+import com.intellitor.common.utils.ObjectNames;
 import com.intellitor.common.utils.Response;
-import com.intellitor.user.feign.DaoFeignClient;
+import com.intellitor.common.entities.Student;
+import com.intellitor.user.utils.BaseTest;
+import com.intellitor.user.utils.ObjectMaker;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@ExtendWith(SpringExtension.class)
-class StudentControllerTest {
+class StudentControllerTest extends BaseTest {
 
-    @Mock
-    private DaoFeignClient daoFeignClient;
+    private final String path = "/student";
 
-    @InjectMocks
-    private StudentController studentController;
+    @Autowired
+    private ObjectMaker objectMaker;
 
-    @Test
-    void testGetStudent() {
-        ResponseEntity<Response> response = ResponseEntity.ok(new Response());
-        long id = 100L;
-        when(daoFeignClient.getStudentById(id)).thenReturn(response);
-        studentController.getStudent(id);
-        verify(daoFeignClient, atLeastOnce()).getStudentById(id);
+    @BeforeEach
+    public void setUp() {
+        objectMaker.studentRepository.deleteAll();
     }
 
     @Test
-    void testValidateStudentByEmailAndPassword() {
-        ResponseEntity<Response> response = ResponseEntity.ok(new Response());
-        String email = "testEmail";
-        String password = "testPassword";
-        when(daoFeignClient.getStudentByEmailAndPassword(email, password)).thenReturn(response);
-        studentController.validateStudentByEmailAndPassword(email, password);
-        verify(daoFeignClient, atLeastOnce()).getStudentByEmailAndPassword(email, password);
+    void testCreateStudent_success() throws Exception {
+        StudentDTO studentDTO = objectMaker.createStudentDTO();
+        Response<StudentDTO> response = postForObject(path, studentDTO, Response.class, StudentDTO.class);
+        assertEquals(200, response.getStatus());
+        StudentDTO postedObject = response.getContent();
+
+        final Long studentId = postedObject.getId();
+        runInTransaction(status -> {
+            Student expectedStudent = objectMaker.studentRepository.findById(studentId).orElseGet(() -> fail("Expected StudentEntity not found"));
+
+            assertEquals(studentId, expectedStudent.getId(), "Student wasn't created successfully");
+            return null;
+        });
     }
 
     @Test
-    void testRegisterStudent() {
-        ResponseEntity<Response> response = ResponseEntity.ok(new Response());
-        StudentDTO studentDTO = createStudentDTO();
-        when(daoFeignClient.createStudent(studentDTO)).thenReturn(response);
-        studentController.registerStudent(studentDTO);
-        verify(daoFeignClient, atLeastOnce()).createStudent(studentDTO);
+    void testCreateStudent_failure() throws Exception {
+        StudentDTO studentDTO = objectMaker.createStudentDTO();
+        Response<StudentDTO> response = postForObject(path, studentDTO, Response.class, StudentDTO.class);
+        assertEquals(200, response.getStatus());
+
+        Response<String> errResponse = postForError(path, studentDTO);
+        assertEquals(400, errResponse.getStatus());
+        assertEquals(String.format(ErrorMessages.USER_ALREADY_EXISTS_BY_EMAIL_PASSWORD, studentDTO.getEmail(), studentDTO.getPassword()), errResponse.getContent());
     }
 
     @Test
-    void testUpdateStudent() {
-        ResponseEntity<Response> response = ResponseEntity.ok(new Response());
-        StudentDTO studentDTO = createStudentDTO();
-        when(daoFeignClient.updateStudent(studentDTO)).thenReturn(response);
-        studentController.updateStudent(studentDTO);
-        verify(daoFeignClient, atLeastOnce()).updateStudent(studentDTO);
+    void testGetStudentById_success() throws Exception {
+        StudentDTO studentDTO = objectMaker.createAndSaveStudentDTO();
+
+        Response<StudentDTO> response = getForObject(String.format("%s/%d", path, studentDTO.getId()), Response.class, StudentDTO.class);
+        assertEquals(200, response.getStatus());
+        StudentDTO gotObject = response.getContent();
+        assertEquals(studentDTO.getId(), gotObject.getId(), "Student wasn't found");
     }
 
     @Test
-    void testDeleteStudent() {
-        ResponseEntity<Response> response = ResponseEntity.ok(new Response());
-        long id = 100L;
-        when(daoFeignClient.deleteStudentById(id)).thenReturn(response);
-        studentController.deleteStudent(id);
-        verify(daoFeignClient, atLeastOnce()).deleteStudentById(id);
+    void testGetStudentById_failure() throws Exception {
+        Response<String> response = getForError(String.format("%s/%s", path, objectMaker.wrongId));
+        assertEquals(400, response.getStatus());
+        assertEquals(String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.STUDENT, objectMaker.wrongId), response.getContent());
     }
 
-    private StudentDTO createStudentDTO() {
-        StudentDTO student = new StudentDTO();
-        student.setName("studentName");
-        student.setPassword("testPass");
-        student.setEmail("testEmail");
-        student.setPhone("+20123548474561");
-        return student;
+    @Test
+    void testGetStudentByEmailAndPassword_success() throws Exception {
+        StudentDTO studentDTO = objectMaker.createAndSaveStudentDTO();
+
+        Response<StudentDTO> response = getForObject(String.format("%s?email=%s&password=%s",path, studentDTO.getEmail(), studentDTO.getPassword()), Response.class, StudentDTO.class);
+        assertEquals(200, response.getStatus());
+        StudentDTO gotObject = response.getContent();
+        assertEquals(studentDTO.getId(), gotObject.getId(), "Student wasn't found");
+        assertEquals(studentDTO.getEmail(), gotObject.getEmail(), "Student wasn't found");
+        assertEquals(studentDTO.getPassword(), gotObject.getPassword(), "Student wasn't found");
     }
 
+    @Test
+    void testGetStudentByEmailAndPassword_failure() throws Exception {
+        Response<String> response = getForError(String.format("%s?email=%s&password=%s", path, objectMaker.wrongValue, objectMaker.wrongValue));
+        assertEquals(400, response.getStatus());
+        assertEquals(String.format(ErrorMessages.NO_OBJECT_FOUND_BY_EMAIL_PASSWORD, ObjectNames.STUDENT, objectMaker.wrongValue, objectMaker.wrongValue), response.getContent());
+    }
+
+    @Test
+    void testUpdateStudent_success() throws Exception {
+        StudentDTO studentDTO = objectMaker.createAndSaveStudentDTO();
+
+        studentDTO.setName("updatedName");
+        Response<StudentDTO> response = putForObject(path, studentDTO, Response.class, StudentDTO.class);
+        runInTransaction(status -> {
+            Student expectedStudent = objectMaker.studentRepository.findById(response.getContent().getId()).orElseGet(() -> fail("Expected StudentEntity not found"));
+
+            assertEquals(studentDTO.getName(), expectedStudent.getName(), "Student name wasn't updated successfully");
+            return null;
+        });
+    }
+
+    @Test
+    void testUpdateStudent_failure() throws Exception {
+        StudentDTO studentDTO = objectMaker.createStudentDTO();
+        studentDTO.setId(objectMaker.wrongId);
+        Response<String> errResponse = putForError(path, studentDTO);
+        assertEquals(400, errResponse.getStatus());
+        assertEquals(String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.STUDENT, studentDTO.getId()), errResponse.getContent());
+    }
+
+    @Test
+    void testDeleteStudent_success() throws Exception {
+        StudentDTO studentDTO = objectMaker.createAndSaveStudentDTO();
+
+        Response<StudentDTO> response = deleteForObject(path, String.valueOf(studentDTO.getId()), Response.class, StudentDTO.class);
+        assertEquals(200, response.getStatus(), "Student wasn't deleted successfully");
+        assertEquals(studentDTO.getId(), response.getContent().getId(), "Student wasn't deleted successfully");
+    }
+
+    @Test
+    void testDeleteStudent_failure() throws Exception {
+        Response<String> response = deleteForError(path, String.valueOf(objectMaker.wrongId));
+        assertEquals(400, response.getStatus(), "Student was found already");
+        assertEquals(String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.STUDENT, objectMaker.wrongId), response.getContent());
+    }
 }
