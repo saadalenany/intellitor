@@ -3,14 +3,13 @@
 A Spring Boot microservices project for e-learning utilizing spring modules & microservices architecture
 
 ## components
-The Project consists of 4 main microservices, gateway service, discovery server & a common Java library
+The Project consists of 3 main microservices, gateway service, discovery server & a common Java library
 * `server` ==> Eureka Discovery server listens to port `8761`
-* `dao` ==> A Database OPs microservice listens to port `8081`
 * `user` ==> An Auth & security microservice listens to port `8082`
 * `course` ==> A Business logic-related microservice for courses & quiz that listens to port `8083`
 * `enrollment` ==> A Business logic-related microservice for enrollments & engagements that listens to port `8084`
 * `gateway` ==> A Spring API-Gateway microservice listens to port `8085`
-* `common` ==> A Java library for all common & shared code by all microservices as well as utilities
+* `common` ==> A Java library for all dao ops, common & shared code by all microservices as well as utilities
 
 ## Running the project
 
@@ -27,7 +26,7 @@ Intellitor could be deployed either directly through direct JVM env or Docker co
 gradle clean build; ./gradlew publishToMavenLocal
 ```
 
-#### 2. build each service of the 6
+#### 2. build each service of the 5
 ```
 ./gradlew clean build --include-build ..\common --console plain
 ```
@@ -44,11 +43,10 @@ gradlew.bat bootRun
 
 ### Important:: Order of Running services
 1. server
-2. dao
-3. user
-4. course
-5. enrollment
-6. gateway
+2. user
+3. course
+4. enrollment
+5. gateway
 
 ### For Docker containerization deployment
 Check [docker-running-cli](docker-running-cli.md)

@@ -27,11 +27,10 @@ public class QuizService {
     }
 
     public Response findById(Long id) {
-        Quiz quiz = quizRepository.findById(id).orElse(null);
-        if (quiz == null) {
-            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.QUIZ, id));
-        }
-        return new Response(200, quizMapper.toModel(quiz));
+        Optional<Quiz> byId = quizRepository.findById(id);
+        return byId.map(quiz ->
+                new Response(200, quizMapper.toModel(quiz))).orElseGet(() ->
+                new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.QUIZ, id)));
     }
 
     public Response createQuiz(QuizDTO quizDTO) {
@@ -40,10 +39,12 @@ public class QuizService {
     }
 
     public Response updateQuiz(QuizDTO quizDTO) {
-        Quiz entity = quizMapper.toEntity(quizDTO);
-        if (quizRepository.findById(quizDTO.getId()).isEmpty()) {
+        Optional<Quiz> byId = quizRepository.findById(quizDTO.getId());
+        if (byId.isEmpty()) {
             return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.QUIZ, quizDTO.getId()));
         }
+        Quiz entity = quizMapper.toEntity(quizDTO);
+        entity.setId(byId.get().getId());
         return saveQuiz(quizDTO, entity);
     }
 
@@ -57,12 +58,12 @@ public class QuizService {
     }
 
     private Response saveQuiz(QuizDTO quizDTO, Quiz entity) {
-        Enrollment enrollment = enrollmentRepository.findById(quizDTO.getEnrollmentId()).orElse(null);
-        if (enrollment == null) {
+        Optional<Enrollment> byId = enrollmentRepository.findById(quizDTO.getEnrollmentId());
+        if (byId.isEmpty()) {
             return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.ENROLLMENT, quizDTO.getEnrollmentId()));
         }
-        if (quizRepository.findByEnrollment(enrollment).isPresent()) {
-            return new Response(400, String.format(ErrorMessages.OBJECT_FIELD_ALREADY_EXISTS, ObjectNames.QUIZ, "enrollment", enrollment.getId()));
+        if (quizRepository.findByEnrollment(byId.get()).isPresent()) {
+            return new Response(400, String.format(ErrorMessages.OBJECT_FIELD_ALREADY_EXISTS, ObjectNames.QUIZ, "enrollment", byId.get().getId()));
         }
         Quiz saved = quizRepository.save(entity);
         return new Response(200, quizMapper.toModel(saved));

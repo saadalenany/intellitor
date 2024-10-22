@@ -23,35 +23,34 @@ public class TeacherService {
     }
 
     public Response findById(Long id) {
-        Teacher teacher = teacherRepository.findById(id).orElse(null);
-        if (teacher == null) {
-            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.TEACHER, id));
-        }
-        return new Response(200, teacherMapper.toModel(teacher));
+        Optional<Teacher> byId = teacherRepository.findById(id);
+        return byId.map(teacher ->
+                new Response(200, teacherMapper.toModel(teacher))).orElseGet(() ->
+                new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.TEACHER, id)));
     }
 
     public Response findByEmailAndPassword(String email, String password) {
-        Teacher teacher = teacherRepository.findByEmailAndPassword(email, password).orElse(null);
-        if (teacher == null) {
-            return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_EMAIL_PASSWORD, ObjectNames.TEACHER, email, password));
-        }
-        return new Response(200, teacherMapper.toModel(teacher));
+        Optional<Teacher> byEmailAndPassword = teacherRepository.findByEmailAndPassword(email, password);
+        return byEmailAndPassword.map(teacher ->
+                new Response(200, teacherMapper.toModel(teacher))).orElseGet(() ->
+                new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_EMAIL_PASSWORD, ObjectNames.TEACHER, email, password)));
     }
 
     public Response createTeacher(TeacherDTO teacherDTO) {
-        Teacher entity = teacherMapper.toEntity(teacherDTO);
         if (teacherRepository.findByEmailAndPassword(teacherDTO.getEmail(), teacherDTO.getPassword()).isPresent()) {
             return new Response(400, String.format(ErrorMessages.USER_ALREADY_EXISTS_BY_EMAIL_PASSWORD, teacherDTO.getEmail(), teacherDTO.getPassword()));
         }
-        Teacher saved = teacherRepository.save(entity);
+        Teacher saved = teacherRepository.save(teacherMapper.toEntity(teacherDTO));
         return new Response(200, teacherMapper.toModel(saved));
     }
 
     public Response updateTeacher(TeacherDTO teacherDTO) {
-        Teacher entity = teacherMapper.toEntity(teacherDTO);
-        if (teacherRepository.findById(teacherDTO.getId()).isEmpty()) {
+        Optional<Teacher> byId = teacherRepository.findById(teacherDTO.getId());
+        if (byId.isEmpty()) {
             return new Response(400, String.format(ErrorMessages.NO_OBJECT_FOUND_BY_ID, ObjectNames.TEACHER, teacherDTO.getId()));
         }
+        Teacher entity = teacherMapper.toEntity(teacherDTO);
+        entity.setId(byId.get().getId());
         Teacher saved = teacherRepository.save(entity);
         return new Response(200, teacherMapper.toModel(saved));
     }
