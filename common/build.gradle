@@ -51,6 +51,12 @@ jar {
 	enabled = true
 }
 
+// Task to create the test JAR (this is for packaging test classes)
+tasks.register('testJar', Jar) {
+	archiveClassifier.set('tests')  // Set the classifier for the test JAR
+	from(sourceSets.test.output)    // Include the test classes in this JAR
+}
+
 publishing {
 	repositories {
 		mavenLocal()
@@ -68,6 +74,16 @@ publishing {
 				usage('java-runtime') {
 					fromResolutionResult()
 				}
+			}
+		}
+
+		mavenTest(MavenPublication) {
+			groupId= 'com.intellitor'
+			artifactId= 'common-test'
+			version= '0.0.1-SNAPSHOT'
+			from components.java
+			artifact(tasks.named('testJar')) {
+				classifier = 'tests'
 			}
 		}
 	}

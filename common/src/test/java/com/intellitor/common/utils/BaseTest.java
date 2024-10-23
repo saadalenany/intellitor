@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ExtendWith({SpringExtension.class})
 @ActiveProfiles("test")
-@ComponentScan(basePackages = "com.intellitor.user.utils")
+@ComponentScan(basePackages = "com.intellitor.common.utils")
 public class BaseTest {
 
     @Autowired
