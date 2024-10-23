@@ -29,24 +29,6 @@ services:
     environment:
       - SPRING_PROFILE_ACTIVE=docker
 
-  dao:
-    #    image: dao service
-    image: dao:latest
-    build:
-      context: dao
-      dockerfile: Dockerfile
-    container_name: dao
-    ports:
-      - "8081:8081"
-    networks:
-      - mysql-network
-      - microservice-network
-    depends_on:
-      - mysql
-      - intellitor
-    environment:
-      - SPRING_PROFILE_ACTIVE=docker
-
   user:
     #    image: user service
     image: user:latest
@@ -57,10 +39,11 @@ services:
     ports:
       - "8082:8082"
     networks:
+      - mysql-network
       - microservice-network
     depends_on:
       - intellitor
-      - dao
+      - mysql
     environment:
       - SPRING_PROFILE_ACTIVE=docker
 
@@ -74,10 +57,11 @@ services:
     ports:
       - "8083:8083"
     networks:
+      - mysql-network
       - microservice-network
     depends_on:
       - intellitor
-      - dao
+      - mysql
     environment:
       - SPRING_PROFILE_ACTIVE=docker
 
@@ -91,10 +75,11 @@ services:
     ports:
       - "8084:8084"
     networks:
+      - mysql-network
       - microservice-network
     depends_on:
       - intellitor
-      - dao
+      - mysql
     environment:
       - SPRING_PROFILE_ACTIVE=docker
 
@@ -108,10 +93,10 @@ services:
     ports:
       - "8085:8085"
     networks:
+      - mysql-network
       - microservice-network
     depends_on:
       - intellitor
-      - dao
       - user
       - course
       - enrollment
