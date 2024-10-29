@@ -23,6 +23,24 @@ spring:
           uri: lb://ENROLLMENT
           predicates:
             - Path=/enrollment/**
+  security:
+      oauth2:
+          client:
+              provider:
+                  keycloak:
+                      issuer-uri: http://localhost:8080/realms/intellirealm
+              registration:
+                  keycloak:
+                      authorization-grant-type: authorization_code
+                      client-id: intellirealm-client
+                      client-name: Intellirealm Client
+                      client-secret: hViwIFJoJbzxtmXj1by1uYwtGtRxwgCy
+                      redirect-uri: http://localhost:8085/login/oauth2/code/keycloak
+                      scope: openid, profile, email
+
+custom:
+  redirect:
+    uri: http://localhost:8085/
 
 eureka:
   client:
