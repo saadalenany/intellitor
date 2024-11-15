@@ -18,7 +18,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/unauthenticated", "/oauth2/**", "/login/**", "/public/**").permitAll()
+                .pathMatchers("/oauth2/**", "/login/**", "/public/**").permitAll()
                 .anyExchange().authenticated()
         )
         .oauth2Login(oauth2Login -> oauth2Login

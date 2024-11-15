@@ -3,7 +3,7 @@ package com.intellitor.course.services;
 import com.intellitor.common.dtos.CourseDTO;
 import com.intellitor.common.entities.Course;
 import com.intellitor.common.mappers.CourseMapper;
-import com.intellitor.common.repositories.CourseRepository;
+import com.intellitor.course.repos.CourseRepository;
 import com.intellitor.common.utils.ErrorMessages;
 import com.intellitor.common.utils.ObjectNames;
 import com.intellitor.common.utils.Response;

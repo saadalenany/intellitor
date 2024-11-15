@@ -26,4 +26,10 @@ public class BaseEntity {
     @Column
     @CreationTimestamp
     private Instant updatedOn;
+
+//    @Column(unique=true)
+//    private String createdBy;
+//
+//    @Column(unique=true)
+//    private String updatedBy;
 }

@@ -3,7 +3,7 @@ package com.intellitor.user.services;
 import com.intellitor.common.dtos.StudentDTO;
 import com.intellitor.common.entities.Student;
 import com.intellitor.common.mappers.StudentMapper;
-import com.intellitor.common.repositories.StudentRepository;
+import com.intellitor.user.repos.StudentRepository;
 import com.intellitor.common.utils.ErrorMessages;
 import com.intellitor.common.utils.ObjectNames;
 import com.intellitor.common.utils.Response;

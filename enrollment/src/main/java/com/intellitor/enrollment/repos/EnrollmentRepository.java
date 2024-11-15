@@ -1,4 +1,4 @@
-package com.intellitor.common.repositories;
+package com.intellitor.enrollment.repos;
 
 import com.intellitor.common.entities.Course;
 import com.intellitor.common.entities.Enrollment;

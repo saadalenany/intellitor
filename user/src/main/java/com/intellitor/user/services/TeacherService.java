@@ -2,11 +2,11 @@ package com.intellitor.user.services;
 
 import com.intellitor.common.dtos.TeacherDTO;
 import com.intellitor.common.entities.Teacher;
-import com.intellitor.common.mappers.TeacherMapper;
-import com.intellitor.common.repositories.TeacherRepository;
 import com.intellitor.common.utils.ErrorMessages;
 import com.intellitor.common.utils.ObjectNames;
 import com.intellitor.common.utils.Response;
+import com.intellitor.common.mappers.TeacherMapper;
+import com.intellitor.user.repos.TeacherRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

@@ -1,9 +1,9 @@
-package com.intellitor.common.utils;
+package com.intellitor.enrollment.utils;
 
 import com.intellitor.common.dtos.*;
 import com.intellitor.common.entities.*;
 import com.intellitor.common.mappers.*;
-import com.intellitor.common.utils.repositories.*;
+import com.intellitor.enrollment.repos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

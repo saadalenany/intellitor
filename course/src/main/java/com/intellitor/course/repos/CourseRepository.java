@@ -1,4 +1,4 @@
-package com.intellitor.common.repositories;
+package com.intellitor.course.repos;
 
 import com.intellitor.common.entities.Course;
 import org.springframework.data.jpa.repository.JpaRepository;

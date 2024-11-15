@@ -7,7 +7,7 @@ import com.intellitor.common.utils.ObjectNames;
 import com.intellitor.common.utils.Response;
 import com.intellitor.common.entities.*;
 import com.intellitor.common.utils.BaseTest;
-import com.intellitor.common.utils.ObjectMaker;
+import com.intellitor.enrollment.utils.ObjectMaker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

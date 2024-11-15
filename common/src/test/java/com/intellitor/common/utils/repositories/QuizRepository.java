@@ -1,4 +1,4 @@
-package com.intellitor.common.repositories;
+package com.intellitor.common.utils.repositories;
 
 import com.intellitor.common.entities.Enrollment;
 import com.intellitor.common.entities.Quiz;
