@@ -17,14 +17,23 @@ spring:
           uri: lb://USER
           predicates:
             - Path=/user/**
+          filters:
+            - RemoveRequestHeader=Authorization
+            - AddRequestHeader=Authorization, Bearer #{request.headers.Authorization}
         - id: course
           uri: lb://COURSE
           predicates:
             - Path=/course/**
+          filters:
+            - RemoveRequestHeader=Authorization
+            - AddRequestHeader=Authorization, Bearer #{request.headers.Authorization}
         - id: enrollment
           uri: lb://ENROLLMENT
           predicates:
             - Path=/enrollment/**
+          filters:
+            - RemoveRequestHeader=Authorization
+            - AddRequestHeader=Authorization, Bearer #{request.headers.Authorization}
   security:
       oauth2:
           client:

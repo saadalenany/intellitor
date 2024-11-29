@@ -1,5 +1,6 @@
 package com.intellitor.course.services;
 
+import com.intellitor.common.config.UserContext;
 import com.intellitor.common.dtos.CourseDTO;
 import com.intellitor.common.entities.Course;
 import com.intellitor.common.mappers.CourseMapper;
@@ -16,13 +17,16 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
+    private final UserContext userContext;
 
-    public CourseService(CourseRepository courseRepository, CourseMapper courseMapper) {
+    public CourseService(CourseRepository courseRepository, CourseMapper courseMapper, UserContext userContext) {
         this.courseRepository = courseRepository;
         this.courseMapper = courseMapper;
+        this.userContext = userContext;
     }
 
     public Response findById(Long id) {
+        System.out.printf("Logged-in Username:: %s\n", userContext.getUsername());
         Optional<Course> byId = courseRepository.findById(id);
         return byId.map(course ->
                 new Response(200, courseMapper.toModel(course))).orElseGet(() ->
@@ -34,7 +38,10 @@ public class CourseService {
         if (byTitle.isPresent()) {
             return new Response(400, String.format(ErrorMessages.OBJECT_FIELD_ALREADY_EXISTS, ObjectNames.COURSE, "title", courseDTO.getTitle()));
         }
-        Course saved = courseRepository.save(courseMapper.toEntity(courseDTO));
+        Course entity = courseMapper.toEntity(courseDTO);
+        entity.setCreatedBy(userContext.getUsername());
+        entity.setUpdatedBy(userContext.getUsername());
+        Course saved = courseRepository.save(entity);
         return new Response(200, courseMapper.toModel(saved));
     }
 
@@ -45,6 +52,7 @@ public class CourseService {
         }
         Course entity = courseMapper.toEntity(courseDTO);
         entity.setId(byId.get().getId());
+        entity.setUpdatedBy(userContext.getUsername());
         Course saved = courseRepository.save(entity);
         return new Response(200, courseMapper.toModel(saved));
     }

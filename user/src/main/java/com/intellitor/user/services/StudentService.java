@@ -3,6 +3,7 @@ package com.intellitor.user.services;
 import com.intellitor.common.dtos.StudentDTO;
 import com.intellitor.common.entities.Student;
 import com.intellitor.common.mappers.StudentMapper;
+import com.intellitor.common.config.UserContext;
 import com.intellitor.user.repos.StudentRepository;
 import com.intellitor.common.utils.ErrorMessages;
 import com.intellitor.common.utils.ObjectNames;
@@ -16,10 +17,12 @@ public class StudentService {
 
     private final StudentRepository studentRepository;
     private final StudentMapper studentMapper;
+    private final UserContext userContext;
 
-    public StudentService(StudentRepository studentRepository, StudentMapper studentMapper) {
+    public StudentService(StudentRepository studentRepository, StudentMapper studentMapper, UserContext userContext) {
         this.studentRepository = studentRepository;
         this.studentMapper = studentMapper;
+        this.userContext = userContext;
     }
 
     public Response findById(Long id) {
@@ -40,7 +43,10 @@ public class StudentService {
         if (studentRepository.findByEmailAndPassword(studentDTO.getEmail(), studentDTO.getPassword()).isPresent()) {
             return new Response(400, String.format(ErrorMessages.USER_ALREADY_EXISTS_BY_EMAIL_PASSWORD, studentDTO.getEmail(), studentDTO.getPassword()));
         }
-        Student saved = studentRepository.save(studentMapper.toEntity(studentDTO));
+        Student entity = studentMapper.toEntity(studentDTO);
+        entity.setCreatedBy(userContext.getUsername());
+        entity.setUpdatedBy(userContext.getUsername());
+        Student saved = studentRepository.save(entity);
         return new Response(200, studentMapper.toModel(saved));
     }
 
@@ -51,6 +57,7 @@ public class StudentService {
         }
         Student entity = studentMapper.toEntity(studentDTO);
         entity.setId(studentDTO.getId());
+        entity.setUpdatedBy(userContext.getUsername());
         Student saved = studentRepository.save(entity);
         return new Response(200, studentMapper.toModel(saved));
     }

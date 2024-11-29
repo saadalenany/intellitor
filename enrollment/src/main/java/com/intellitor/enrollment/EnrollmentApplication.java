@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @EnableFeignClients
 @EnableDiscoveryClient
-@ComponentScan(basePackages = {"com.intellitor.common.mappers", "com.intellitor.enrollment.services", "com.intellitor.enrollment.controllers", "com.intellitor.enrollment.utils"})
+@ComponentScan(basePackages = {"com.intellitor.common.mappers", "com.intellitor.common.config", "com.intellitor.enrollment.services", "com.intellitor.enrollment.controllers", "com.intellitor.enrollment.utils"})
 @EntityScan(basePackages = "com.intellitor.common.entities")
 @EnableJpaRepositories(basePackages = "com.intellitor.enrollment.repos")
 public class EnrollmentApplication {

@@ -6,6 +6,7 @@ import com.intellitor.common.utils.ErrorMessages;
 import com.intellitor.common.utils.ObjectNames;
 import com.intellitor.common.utils.Response;
 import com.intellitor.common.mappers.TeacherMapper;
+import com.intellitor.common.config.UserContext;
 import com.intellitor.user.repos.TeacherRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +17,16 @@ public class TeacherService {
 
     private final TeacherRepository teacherRepository;
     private final TeacherMapper teacherMapper;
+    private final UserContext userContext;
 
-    public TeacherService(TeacherRepository teacherRepository, TeacherMapper teacherMapper) {
+    public TeacherService(TeacherRepository teacherRepository, TeacherMapper teacherMapper, UserContext userContext) {
         this.teacherRepository = teacherRepository;
         this.teacherMapper = teacherMapper;
+        this.userContext = userContext;
     }
 
     public Response findById(Long id) {
+        System.out.printf("Logged-in Username:: %s\n", userContext.getUsername());
         Optional<Teacher> byId = teacherRepository.findById(id);
         return byId.map(teacher ->
                 new Response(200, teacherMapper.toModel(teacher))).orElseGet(() ->
@@ -37,10 +41,14 @@ public class TeacherService {
     }
 
     public Response createTeacher(TeacherDTO teacherDTO) {
+        System.out.printf("Logged-in Username:: %s\n", userContext.getUsername());
         if (teacherRepository.findByEmailAndPassword(teacherDTO.getEmail(), teacherDTO.getPassword()).isPresent()) {
             return new Response(400, String.format(ErrorMessages.USER_ALREADY_EXISTS_BY_EMAIL_PASSWORD, teacherDTO.getEmail(), teacherDTO.getPassword()));
         }
-        Teacher saved = teacherRepository.save(teacherMapper.toEntity(teacherDTO));
+        Teacher entity = teacherMapper.toEntity(teacherDTO);
+        entity.setCreatedBy(userContext.getUsername());
+        entity.setUpdatedBy(userContext.getUsername());
+        Teacher saved = teacherRepository.save(entity);
         return new Response(200, teacherMapper.toModel(saved));
     }
 
@@ -51,6 +59,7 @@ public class TeacherService {
         }
         Teacher entity = teacherMapper.toEntity(teacherDTO);
         entity.setId(byId.get().getId());
+        entity.setUpdatedBy(userContext.getUsername());
         Teacher saved = teacherRepository.save(entity);
         return new Response(200, teacherMapper.toModel(saved));
     }

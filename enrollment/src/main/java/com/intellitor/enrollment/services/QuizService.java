@@ -1,5 +1,6 @@
 package com.intellitor.enrollment.services;
 
+import com.intellitor.common.config.UserContext;
 import com.intellitor.common.dtos.QuizDTO;
 import com.intellitor.common.entities.Enrollment;
 import com.intellitor.common.entities.Quiz;
@@ -19,14 +20,17 @@ public class QuizService {
     private final QuizRepository quizRepository;
     private final EnrollmentRepository enrollmentRepository;
     private final QuizMapper quizMapper;
+    private final UserContext userContext;
 
-    public QuizService(QuizRepository quizRepository, EnrollmentRepository enrollmentRepository, QuizMapper quizMapper) {
+    public QuizService(QuizRepository quizRepository, EnrollmentRepository enrollmentRepository, QuizMapper quizMapper, UserContext userContext) {
         this.quizRepository = quizRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.quizMapper = quizMapper;
+        this.userContext = userContext;
     }
 
     public Response findById(Long id) {
+        System.out.printf("Logged-in Username:: %s\n", userContext.getUsername());
         Optional<Quiz> byId = quizRepository.findById(id);
         return byId.map(quiz ->
                 new Response(200, quizMapper.toModel(quiz))).orElseGet(() ->
@@ -35,6 +39,8 @@ public class QuizService {
 
     public Response createQuiz(QuizDTO quizDTO) {
         Quiz entity = quizMapper.toEntity(quizDTO);
+        entity.setCreatedBy(userContext.getUsername());
+        entity.setUpdatedBy(userContext.getUsername());
         return saveQuiz(quizDTO, entity);
     }
 
@@ -45,6 +51,7 @@ public class QuizService {
         }
         Quiz entity = quizMapper.toEntity(quizDTO);
         entity.setId(byId.get().getId());
+        entity.setUpdatedBy(userContext.getUsername());
         return saveQuiz(quizDTO, entity);
     }
 

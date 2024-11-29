@@ -1,5 +1,6 @@
 package com.intellitor.enrollment.services;
 
+import com.intellitor.common.config.UserContext;
 import com.intellitor.common.dtos.EnrollmentDTO;
 import com.intellitor.common.entities.Course;
 import com.intellitor.common.entities.Enrollment;
@@ -22,15 +23,18 @@ public class EnrollmentService {
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
     private final EnrollmentMapper enrollmentMapper;
+    private final UserContext userContext;
 
-    public EnrollmentService(EnrollmentRepository enrollmentRepository, StudentRepository studentRepository, CourseRepository courseRepository, EnrollmentMapper enrollmentMapper) {
+    public EnrollmentService(EnrollmentRepository enrollmentRepository, StudentRepository studentRepository, CourseRepository courseRepository, EnrollmentMapper enrollmentMapper, UserContext userContext) {
         this.enrollmentRepository = enrollmentRepository;
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
         this.enrollmentMapper = enrollmentMapper;
+        this.userContext = userContext;
     }
 
     public Response findById(Long id) {
+        System.out.printf("Logged-in Username:: %s\n", userContext.getUsername());
         Optional<Enrollment> byId = enrollmentRepository.findById(id);
         return byId.map(enrollment ->
                 new Response(200, enrollmentMapper.toModel(enrollment))).orElseGet(() ->
@@ -39,6 +43,8 @@ public class EnrollmentService {
 
     public Response createEnrollment(EnrollmentDTO enrollmentDTO) {
         Enrollment entity = enrollmentMapper.toEntity(enrollmentDTO);
+        entity.setCreatedBy(userContext.getUsername());
+        entity.setUpdatedBy(userContext.getUsername());
         return saveEntity(enrollmentDTO, entity);
     }
 
@@ -49,6 +55,7 @@ public class EnrollmentService {
         }
         Enrollment entity = enrollmentMapper.toEntity(enrollmentDTO);
         entity.setId(byId.get().getId());
+        entity.setUpdatedBy(userContext.getUsername());
         return saveEntity(enrollmentDTO, entity);
     }
 

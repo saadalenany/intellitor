@@ -13,4 +13,6 @@ public class BaseDTO {
     private Long id;
     private Instant createdOn;
     private Instant updatedOn;
+    private String createdBy;
+    private String updatedBy;
 }
